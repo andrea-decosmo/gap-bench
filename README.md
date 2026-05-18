@@ -48,7 +48,7 @@ python -m src.scoring --in results/my_run.jsonl \
 python -m src.run_leaderboard results/*.scored.jsonl
 ```
 
-Total time on a recent laptop: **~30 minutes**. Total cost: **~$0.05 in judge API calls per model**.
+Total time on a recent laptop: **~30 minutes**.
 
 Alternative: run the whole pipeline in your browser on Kaggle — see [`notebooks/gap_bench_kaggle.ipynb`](notebooks/gap_bench_kaggle.ipynb).
 
@@ -77,8 +77,9 @@ Alternative: run the whole pipeline in your browser on Kaggle — see [`notebook
 
 ## License
 
-- **Code** (`src/`, `notebooks/`, `docs/`): Apache License 2.0 · see [`LICENSE`](LICENSE)
+- **Code** (`src/`, `notebooks/`, `pyproject.toml`): Apache License 2.0 · see [`LICENSE`](LICENSE)
 - **Dataset and taxonomy** (`data/`): Creative Commons Attribution-ShareAlike 4.0 · see [`data/LICENSE`](data/LICENSE)
+- **Documentation site** (`docs/`): Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 · see [`docs/LICENSE`](docs/LICENSE)
 
 ---
 

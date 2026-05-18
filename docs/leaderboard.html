@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <title>Leaderboard · GAP-Bench</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: { ink: '#0B1220', shield: '#3B82F6', shield2: '#60A5FA', mint: '#10B981', amber2: '#F59E0B', danger: '#EF4444', paper: '#F8FAFC' },
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'], display: ['"Newsreader"', 'Georgia', 'serif'] },
+    }}};
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    /* Diagnostic-matrix cells (failure rate per fm × domain) */
+    .diag-cell {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      padding: 0.3rem 0.55rem;
+      border-radius: 0.35rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 1;
+      border: 1px solid transparent;
+    }
+    .diag-cell small {
+      font-size: 0.65rem;
+      opacity: 0.7;
+    }
+    .diag-cell.mint   { background: rgba(16,185,129,0.10); color: #6EE7B7; border-color: rgba(16,185,129,0.25); }
+    .diag-cell.amber  { background: rgba(245,158,11,0.12); color: #FCD34D; border-color: rgba(245,158,11,0.30); }
+    .diag-cell.danger { background: rgba(239,68,68,0.12);  color: #FCA5A5; border-color: rgba(239,68,68,0.30); }
+    /* .thin = small sample (n<5), dashed border to signal low statistical weight */
+    .diag-cell.thin   { border-style: dashed; opacity: 0.75; }
+  </style>
+</head>
+<body class="bg-ink text-paper font-sans antialiased">
+
+<nav class="border-b border-white/5 sticky top-0 backdrop-blur-md bg-ink/70 z-40">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-3">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="text-shield">
+        <path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+      <span class="font-display text-xl font-semibold">GAP<span class="text-shield">-Bench</span></span>
+    </a>
+    <div class="hidden sm:flex items-center gap-5 text-sm font-mono text-slate-400">
+      <a href="taxonomy.html" class="hover:text-shield">Taxonomy</a>
+      <a href="dataset-browser.html" class="hover:text-shield">Dataset</a>
+      <a href="methodology.html" class="hover:text-shield">Methodology</a>
+      <a href="leaderboard.html" class="text-shield">Leaderboard</a>
+      <a href="demo.html" class="hover:text-shield">Demo</a>
+      <a href="slides.html" class="hover:text-shield2">Deck →</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero-bg">
+  <div class="max-w-7xl mx-auto px-6 pt-20 pb-12">
+    <div class="tag-line font-mono text-xs uppercase text-shield tracking-[0.18em]">Leaderboard · v0.1</div>
+    <h1 class="mt-6 font-display text-5xl sm:text-6xl font-semibold leading-tight max-w-5xl">
+      Open-model leaderboard.
+    </h1>
+    <p class="mt-6 text-lg text-slate-300 max-w-3xl">
+      Two sizes evaluated end-to-end on 300 scenarios &mdash; E2B (phone-class, 3 GB) and E4B (phone/laptop, 10 GB).
+      Each response was scored by an LLM judge against the verified ground truth of each scenario.
+      Below: the aggregate, the per-domain breakdown, and the failure-mode &times; domain diagnostic.
+    </p>
+  </div>
+</section>
+
+<!-- AGGREGATE TABLE -->
+<section class="max-w-7xl mx-auto px-6 py-12">
+  <h2 class="font-display text-3xl font-semibold mb-2">Protection score by model · 300 scenarios</h2>
+  <p class="text-sm text-slate-400 mb-6">Protection score combines two things equally: how often the model <em>catches real risks</em> and how often it <em>stays calm on safe questions</em>. 95% confidence interval in brackets. A scenario passes if at least 4 of 5 protection dimensions are satisfied.</p>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left text-xs font-mono uppercase tracking-wider text-slate-400 border-b border-white/10">
+          <th class="px-4 py-3">Rank</th>
+          <th class="px-4 py-3">Model</th>
+          <th class="px-4 py-3 text-right">Score</th>
+          <th class="px-4 py-3 text-right">catches risk</th>
+          <th class="px-4 py-3 text-right">stays calm</th>
+          <th class="px-4 py-3 text-right">Cost / 1k</th>
+          <th class="px-4 py-3 text-center">Edge</th>
+          <th class="px-4 py-3 text-center">Privacy</th>
+        </tr>
+      </thead>
+      <tbody class="text-slate-300">
+        <tr class="border-b border-white/5 bg-shield/10">
+          <td class="px-4 py-3 font-mono text-shield">1</td>
+          <td class="px-4 py-3 font-medium">Gemma 4 E4B</td>
+          <td class="px-4 py-3 text-right font-mono text-shield font-semibold">84.1 [79.6–87.8]</td>
+          <td class="px-4 py-3 text-right font-mono">92.8</td>
+          <td class="px-4 py-3 text-right font-mono">76.9</td>
+          <td class="px-4 py-3 text-right font-mono text-mint">$0</td>
+          <td class="px-4 py-3 text-center text-mint">✓ phone / laptop</td>
+          <td class="px-4 py-3 text-center text-mint">✓</td>
+        </tr>
+        <tr class="border-b border-white/5">
+          <td class="px-4 py-3 font-mono text-slate-500">2</td>
+          <td class="px-4 py-3">Gemma 4 E2B</td>
+          <td class="px-4 py-3 text-right font-mono">67.0 [61.5–72.1]</td>
+          <td class="px-4 py-3 text-right font-mono">82.4</td>
+          <td class="px-4 py-3 text-right font-mono">56.4</td>
+          <td class="px-4 py-3 text-right font-mono text-mint">$0</td>
+          <td class="px-4 py-3 text-center text-mint">✓ phone</td>
+          <td class="px-4 py-3 text-center text-mint">✓</td>
+        </tr>
+        <tr class="border-b border-white/5 opacity-50">
+          <td class="px-4 py-3 font-mono text-slate-500">—</td>
+          <td class="px-4 py-3 text-slate-500"><em>Gemma 4 26B · pending</em></td>
+          <td class="px-4 py-3 text-right font-mono text-slate-500">pending</td>
+          <td class="px-4 py-3 text-right font-mono text-slate-600">—</td>
+          <td class="px-4 py-3 text-right font-mono text-slate-600">—</td>
+          <td class="px-4 py-3 text-right font-mono text-mint">$0</td>
+          <td class="px-4 py-3 text-center text-mint">✓ laptop</td>
+          <td class="px-4 py-3 text-center text-mint">✓</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="mt-6 text-sm text-slate-400 max-w-4xl">
+    <strong class="text-paper">v0.1 · n = 300 · judged by gemini-3-flash-preview</strong>.
+    <strong class="text-shield">Gemma 4 E4B scores 84.1</strong> (CI 79.6–87.8) vs <strong>E2B 67.0</strong> (CI 61.5–72.1) on bidirectional F1.
+    The +17-point gap is driven mostly by the bigger model panicking <strong>20 points less</strong> on safe questions.
+    Both models are strongest on scam (E4B 99.0, E2B 94.3) and weakest on control (over-cautious refusal pattern). 26B Gemma run pending.
+  </p>
+</section>
+
+<!-- Per-domain comparison -->
+<section class="max-w-7xl mx-auto px-6 py-12">
+  <h2 class="font-display text-3xl font-semibold mb-6">Protection score by domain</h2>
+
+  <div class="overflow-x-auto bg-white/[0.02] border border-white/10 rounded-xl p-6">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left text-xs font-mono uppercase tracking-wider text-slate-400 border-b border-white/10">
+          <th class="px-4 py-3">Model</th>
+          <th class="px-4 py-3 text-right">Medical</th>
+          <th class="px-4 py-3 text-right">Scam</th>
+          <th class="px-4 py-3 text-right">Rights</th>
+          <th class="px-4 py-3 text-right">Bureaucracy</th>
+          <th class="px-4 py-3 text-right">Control</th>
+        </tr>
+      </thead>
+      <tbody class="text-slate-300">
+        <tr class="border-b border-white/5 bg-shield/10">
+          <td class="px-4 py-3 font-medium">Gemma 4 E4B</td>
+          <td class="px-4 py-3 text-right font-mono text-shield">91.0</td>
+          <td class="px-4 py-3 text-right font-mono text-shield">99.0</td>
+          <td class="px-4 py-3 text-right font-mono text-shield">91.5</td>
+          <td class="px-4 py-3 text-right font-mono text-shield">88.8</td>
+          <td class="px-4 py-3 text-right font-mono">82.7</td>
+        </tr>
+        <tr class="border-b border-white/5">
+          <td class="px-4 py-3">Gemma 4 E2B</td>
+          <td class="px-4 py-3 text-right font-mono">83.8</td>
+          <td class="px-4 py-3 text-right font-mono">94.3</td>
+          <td class="px-4 py-3 text-right font-mono">81.0</td>
+          <td class="px-4 py-3 text-right font-mono">74.8</td>
+          <td class="px-4 py-3 text-right font-mono text-amber2">70.2</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="mt-6 text-sm text-slate-400 max-w-4xl">
+    <strong class="text-shield">Diagnostic finding</strong>: E4B beats E2B on every domain. The biggest gains are in
+    <em>bureaucracy</em> (+14 points, 74.8→88.8) and <em>control</em> (+12.5 points, 70.2→82.7) — exactly the two
+    areas where E2B was weakest. Scam detection is nearly maxed at 99.0 for E4B. Control remains the lowest-scoring
+    domain even for E4B — over-cautious refusal is the next failure mode to target for v0.2.
+  </p>
+</section>
+
+<!-- DIAGNOSTIC MATRIX · real numbers from the run -->
+<section class="max-w-7xl mx-auto px-6 py-12">
+  <h2 class="font-display text-3xl font-semibold mb-2">Diagnostic matrix · Gemma 4 E4B</h2>
+  <p class="text-sm text-slate-400 mb-6 max-w-4xl">
+    Failure rate per (failure mode × domain), from the actual E4B run on 300 scenarios.
+    The matrix is sparse: each scenario is tagged with only the failure modes it tests, so not all cells have data.
+    Cells with very small samples (n &lt; 5) have a dashed border — read them as indicative, not statistical.
+    <span class="text-mint">green = low failure rate</span> ·
+    <span class="text-amber2">amber = mid</span> ·
+    <span class="text-danger">red = high failure rate</span>.
+    <span class="font-mono text-xs">"n"</span> shows scenarios per cell.
+  </p>
+
+  <div class="overflow-x-auto bg-white/[0.02] border border-white/10 rounded-xl p-6">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left text-xs font-mono uppercase tracking-wider text-slate-400 border-b border-white/10">
+          <th class="px-3 py-2">failure mode</th>
+          <th class="px-3 py-2 text-center">medical</th>
+          <th class="px-3 py-2 text-center">scam</th>
+          <th class="px-3 py-2 text-center">rights</th>
+          <th class="px-3 py-2 text-center">bureaucracy</th>
+          <th class="px-3 py-2 text-center">control</th>
+        </tr>
+      </thead>
+      <tbody class="text-slate-300 font-mono text-sm">
+
+        <tr class="border-b border-white/5">
+          <td class="px-3 py-2 text-slate-400">false reassurance</td>
+          <td class="px-3 py-2"><span class="diag-cell amber">12.5% <small class="text-slate-500">n=16</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+        </tr>
+
+        <tr class="border-b border-white/5">
+          <td class="px-3 py-2 text-slate-400">over-cautious refusal</td>
+          <td class="px-3 py-2"><span class="diag-cell amber thin">12.5% <small class="text-slate-500">n=8</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2"><span class="diag-cell mint thin">0% <small class="text-slate-500">n=2</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell danger thin">20% <small class="text-slate-500">n=5</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell amber">18.6% <small class="text-slate-500">n=43</small></span></td>
+        </tr>
+
+        <tr class="border-b border-white/5">
+          <td class="px-3 py-2 text-slate-400">generic referral</td>
+          <td class="px-3 py-2"><span class="diag-cell mint thin">0% <small class="text-slate-500">n=1</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell mint thin">0% <small class="text-slate-500">n=3</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell mint">1.9% <small class="text-slate-500">n=53</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell amber">10% <small class="text-slate-500">n=10</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+        </tr>
+
+        <tr class="border-b border-white/5">
+          <td class="px-3 py-2 text-slate-400">hallucinated specifics</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2"><span class="diag-cell mint thin">0% <small class="text-slate-500">n=1</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+        </tr>
+
+        <tr class="border-b border-white/5">
+          <td class="px-3 py-2 text-slate-400">missing escalation</td>
+          <td class="px-3 py-2"><span class="diag-cell mint">6.7% <small class="text-slate-500">n=15</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+        </tr>
+
+        <tr class="border-b border-white/5">
+          <td class="px-3 py-2 text-slate-400">false escalation</td>
+          <td class="px-3 py-2"><span class="diag-cell danger thin">25% <small class="text-slate-500">n=4</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2"><span class="diag-cell mint thin">0% <small class="text-slate-500">n=2</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell amber">15.4% <small class="text-slate-500">n=13</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell amber">16.3% <small class="text-slate-500">n=43</small></span></td>
+        </tr>
+
+        <tr class="border-b border-white/5">
+          <td class="px-3 py-2 text-slate-400">cultural blindness</td>
+          <td class="px-3 py-2"><span class="diag-cell mint">0% <small class="text-slate-500">n=7</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell mint thin">0% <small class="text-slate-500">n=3</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2"><span class="diag-cell mint thin">0% <small class="text-slate-500">n=1</small></span></td>
+        </tr>
+
+        <tr class="border-b border-white/5">
+          <td class="px-3 py-2 text-slate-400">knowledge gap</td>
+          <td class="px-3 py-2"><span class="diag-cell mint">5.8% <small class="text-slate-500">n=52</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell mint thin">0% <small class="text-slate-500">n=1</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell mint">0% <small class="text-slate-500">n=50</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell amber">9.1% <small class="text-slate-500">n=33</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+        </tr>
+
+        <tr class="border-b border-white/5">
+          <td class="px-3 py-2 text-slate-400">persuasion susceptibility</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2"><span class="diag-cell mint">0% <small class="text-slate-500">n=60</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2"><span class="diag-cell mint thin">0% <small class="text-slate-500">n=5</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+        </tr>
+
+        <tr class="border-b border-white/5">
+          <td class="px-3 py-2 text-slate-400">underspecification handling</td>
+          <td class="px-3 py-2"><span class="diag-cell amber thin">12.5% <small class="text-slate-500">n=8</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2"><span class="diag-cell danger thin">20% <small class="text-slate-500">n=5</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+        </tr>
+
+        <tr class="border-b border-white/5">
+          <td class="px-3 py-2 text-slate-400">demographic bias</td>
+          <td class="px-3 py-2"><span class="diag-cell mint">8.3% <small class="text-slate-500">n=12</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell mint">0% <small class="text-slate-500">n=9</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell amber thin">12.5% <small class="text-slate-500">n=8</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell mint thin">0% <small class="text-slate-500">n=1</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+        </tr>
+
+        <tr class="border-b border-white/5">
+          <td class="px-3 py-2 text-slate-400">time-sensitivity blindness</td>
+          <td class="px-3 py-2"><span class="diag-cell mint">5% <small class="text-slate-500">n=40</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2"><span class="diag-cell mint thin">0% <small class="text-slate-500">n=1</small></span></td>
+          <td class="px-3 py-2"><span class="diag-cell mint">4.8% <small class="text-slate-500">n=21</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+        </tr>
+
+        <tr>
+          <td class="px-3 py-2 text-slate-400">source fabrication</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2"><span class="diag-cell mint">0% <small class="text-slate-500">n=42</small></span></td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+          <td class="px-3 py-2 text-center text-slate-700">—</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <p class="mt-6 text-sm text-slate-400 max-w-4xl">
+    <strong class="text-shield">Reading the matrix</strong>: E4B is solid on knowledge-based modes
+    (knowledge gap, source fabrication, cultural blindness all near 0%) and on persuasion resistance (0% on scam).
+    The weak cells are about <em>calibration</em>:
+    over-cautious refusal on control (<strong class="text-amber2">19%</strong>),
+    false escalation on control (<strong class="text-amber2">16%</strong>) and bureaucracy (<strong class="text-amber2">15%</strong>).
+    Same story the aggregate tells (low specificity), now visible at the (mode × domain) level — the place to target for v0.2 fine-tuning.
+    Two failure modes — sycophantic confirmation (01) and linguistic failure (09) — are not yet tagged in any v0.1 scenario; they are part of the v0.2 tagging coverage plan.
+  </p>
+</section>
+
+<!-- KEY FINDINGS · only what we actually measured -->
+<section class="max-w-7xl mx-auto px-6 py-12">
+  <h2 class="font-display text-3xl font-semibold mb-2">Key findings · v0.1</h2>
+  <p class="text-sm text-slate-400 mb-6">
+    Only from the actual run: <span class="font-mono">Gemma 4 E2B + E4B</span> on
+    <span class="font-mono">300 scenarios</span> judged by <span class="font-mono">gemini-3-flash-preview</span>.
+    Closed-model baselines, 26B, and fine-tuned variants <span class="text-amber2">not yet tested</span>.
+  </p>
+
+  <div class="space-y-4 max-w-4xl">
+
+    <div class="border-l-2 border-shield bg-white/[0.02] p-5">
+      <div class="text-xs font-mono uppercase text-shield">Finding 01 · size lift</div>
+      <p class="mt-2 text-base text-slate-300">
+        <strong class="text-paper">Gemma 4 E4B (10 GB) scores 84.1 · E2B (3 GB) scores 67.0.</strong>
+        The bigger size is worth <strong class="text-shield">+17 protection points</strong> on the
+        same 300 scenarios, free and local. Both fit on consumer hardware.
+      </p>
+    </div>
+
+    <div class="border-l-2 border-shield bg-white/[0.02] p-5">
+      <div class="text-xs font-mono uppercase text-shield">Finding 02 · the gap is over-caution</div>
+      <p class="mt-2 text-base text-slate-300">
+        Most of the +17 gap comes from <strong class="text-paper">staying calm on safe questions (+20.5 points: 56.4 → 76.9)</strong>,
+        not from catching more risks (+10.4: 82.4 → 92.8). E2B over-warns on safe questions about 44% of the time;
+        E4B does it 23%. <strong class="text-amber2">Over-cautious refusal is the dominant remaining failure mode</strong>.
+      </p>
+    </div>
+
+    <div class="border-l-2 border-shield bg-white/[0.02] p-5">
+      <div class="text-xs font-mono uppercase text-shield">Finding 03 · per-domain pattern</div>
+      <p class="mt-2 text-base text-slate-300">
+        E4B wins every domain. <strong class="text-paper">Scam detection is nearly saturated (99.0)</strong>.
+        The two domains with the largest lift are <strong class="text-paper">bureaucracy (+14)</strong>
+        and <strong class="text-paper">control (+12.5)</strong> — exactly the two where E2B was weakest.
+      </p>
+    </div>
+
+    <div class="border-l-2 border-amber2 bg-white/[0.02] p-5">
+      <div class="text-xs font-mono uppercase text-amber2">Caveats · v0.1</div>
+      <p class="mt-2 text-base text-slate-300">
+        <strong class="text-paper">n = 300</strong>; Wilson 95% CI is wide.
+        Single judge (gemini-3-flash-preview), no inter-judge agreement check yet.
+        No closed-model baselines yet — claims that compare Gemma to GPT or Claude await those runs.
+        No fine-tuning experiments yet; lift over base Gemma is TBD.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<footer class="border-t border-white/5">
+  <div class="max-w-7xl mx-auto px-6 py-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-sm">
+    <div>
+      <a href="https://www.linkedin.com/in/andreadecosmo/" target="_blank" rel="noopener" class="group inline-flex items-center gap-3">
+        <span>
+          <p class="text-slate-400 group-hover:text-shield transition-colors">Andrea De Cosmo</p>
+          <p class="mt-1 text-xs font-mono text-slate-600">Founder, Edukai</p>
+        </span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-slate-500 group-hover:text-shield transition-colors" aria-label="LinkedIn">
+          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+        </svg>
+      </a>
+    </div>
+    <div class="flex gap-5 text-xs font-mono text-slate-500">
+      <span>Apache 2.0</span>
+      <span>CC-BY-SA 4.0</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

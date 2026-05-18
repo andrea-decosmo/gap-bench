@@ -1,0 +1,51 @@
+/* Custom styles on top of Tailwind for GAP-Bench docs */
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
+
+code { font-feature-settings: normal; }
+
+:focus-visible {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+a, button, select, [class*="hover:"] {
+  transition: background-color 150ms ease, color 150ms ease,
+              border-color 150ms ease, transform 150ms ease;
+}
+
+/* Pretty scrollbar in code blocks */
+pre::-webkit-scrollbar { height: 8px; }
+pre::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+/* Failure-mode card animation */
+.fm-card {
+  position: relative;
+  transition: transform 200ms ease, border-color 200ms ease;
+}
+.fm-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* Scenario example highlight */
+.scenario {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 0.75rem;
+}
+.scenario.scenario-risk { border-left: 3px solid #EF4444; }
+.scenario.scenario-control { border-left: 3px solid #10B981; }
+
+/* Stat cards */
+.stat-num {
+  font-family: 'Newsreader', Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Hero pattern subtle background */
+.hero-bg {
+  background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.15), transparent);
+}

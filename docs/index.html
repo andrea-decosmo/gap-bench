@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <title>GAP-Bench — A benchmark for AI protection of vulnerable users</title>
+  <meta name="description" content="An open diagnostic benchmark measuring whether open and local AI models protect people who can't reach an expert. Cross-domain, multilingual, source-referenced." />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#0B1220',
+            shield: '#3B82F6',
+            shield2: '#60A5FA',
+            mint: '#10B981',
+            amber2: '#F59E0B',
+            danger: '#EF4444',
+            paper: '#F8FAFC',
+          },
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+            display: ['"Newsreader"', '"Source Serif Pro"', 'Georgia', 'serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-ink text-paper font-sans antialiased">
+
+<!-- Top nav (consistent with other pages) -->
+<nav class="border-b border-white/5 sticky top-0 backdrop-blur-md bg-ink/70 z-40">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-3">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="text-shield">
+        <path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+      <span class="font-display text-xl font-semibold">GAP<span class="text-shield">-Bench</span></span>
+    </a>
+    <div class="hidden sm:flex items-center gap-5 text-sm font-mono text-slate-400">
+      <a href="taxonomy.html" class="hover:text-shield">Taxonomy</a>
+      <a href="dataset-browser.html" class="hover:text-shield">Dataset</a>
+      <a href="methodology.html" class="hover:text-shield">Methodology</a>
+      <a href="leaderboard.html" class="hover:text-shield">Leaderboard</a>
+      <a href="demo.html" class="hover:text-shield">Demo</a>
+      <a href="slides.html" class="hover:text-shield2">Deck →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<main class="max-w-4xl mx-auto px-6 pt-20 pb-16">
+
+  <div class="font-mono text-xs uppercase tracking-[0.18em] text-shield mb-6">
+    v0.1
+  </div>
+
+  <h1 class="font-display text-6xl sm:text-7xl font-semibold leading-none tracking-tight">
+    GAP<span class="text-shield">-Bench</span>
+  </h1>
+
+  <p class="mt-6 font-display text-2xl sm:text-3xl text-slate-200 font-medium leading-snug max-w-3xl">
+    An open benchmark for AI that protects users
+    when expert help is out of reach.
+  </p>
+
+  <p class="mt-8 text-base text-slate-400 max-w-3xl leading-relaxed">
+    Existing safety benchmarks measure whether a model refuses harmful requests.
+    GAP-Bench measures something else: whether a model <em class="text-shield not-italic">recognises a hidden
+    risk in the user's situation and takes the protective action</em>.
+  </p>
+
+  <!-- Acceptance criterion (with vertical accent, like dataset-browser) -->
+  <div class="mt-10 pl-6 border-l-2 border-shield/60 max-w-3xl">
+    <p class="font-mono text-xs uppercase tracking-wider text-shield">acceptance criterion</p>
+    <p class="mt-2 text-lg text-slate-200 leading-relaxed">
+      A scenario is added if it would <em class="text-shield not-italic">protect a vulnerable user</em>
+      who cannot easily reach a qualified expert when something matters.
+    </p>
+  </div>
+
+  <!-- THE GAP: 3 stats from real authoritative sources -->
+  <section class="mt-16">
+    <h2 class="font-display text-2xl font-semibold text-slate-300">The expertise gap is global.</h2>
+    <div class="mt-6 grid grid-cols-3 gap-6 max-w-3xl">
+      <div>
+        <div class="font-display text-4xl sm:text-5xl font-semibold text-shield">4.5B</div>
+        <p class="mt-2 text-sm text-slate-300">lack essential health services</p>
+        <p class="mt-1 text-xs font-mono text-slate-600">WHO / WB 2025</p>
+      </div>
+      <div>
+        <div class="font-display text-4xl sm:text-5xl font-semibold text-shield">5.1B</div>
+        <p class="mt-2 text-sm text-slate-300">have unmet justice needs</p>
+        <p class="mt-1 text-xs font-mono text-slate-600">WJP 2024</p>
+      </div>
+      <div>
+        <div class="font-display text-4xl sm:text-5xl font-semibold text-shield">1.4B</div>
+        <p class="mt-2 text-sm text-slate-300">adults are unbanked</p>
+        <p class="mt-1 text-xs font-mono text-slate-600">World Bank Findex 2025</p>
+      </div>
+    </div>
+    <p class="mt-6 text-base text-slate-400 max-w-3xl">
+      Closed, paid AI doesn't reach them well. Free, open-weight models running on a phone or laptop
+      are the most scalable option that does. The open question is whether they actually protect users today.
+    </p>
+  </section>
+
+  <!-- WHAT WE MEASURED: real leaderboard preview -->
+  <section class="mt-16">
+    <h2 class="font-display text-2xl font-semibold text-slate-300">What we measured.</h2>
+    <p class="mt-3 text-base text-slate-400 max-w-3xl">
+      The first measurement: free Gemma 4 on 300 real protection scenarios, scored on five protection dimensions.
+    </p>
+
+    <div class="mt-6 max-w-2xl">
+      <a href="leaderboard.html" class="block bg-shield/10 border border-shield/30 rounded-xl p-5 mb-2 flex justify-between items-baseline hover:bg-shield/15 transition-colors">
+        <div>
+          <div class="font-display text-xl font-semibold">Gemma 4 E4B</div>
+          <div class="text-xs font-mono text-slate-500 mt-1">phone / laptop · 10 GB · $0</div>
+        </div>
+        <div class="font-display text-4xl font-semibold text-shield">84.1</div>
+      </a>
+      <a href="leaderboard.html" class="block bg-white/[0.04] border border-white/10 rounded-xl p-5 flex justify-between items-baseline hover:bg-white/[0.08] transition-colors">
+        <div>
+          <div class="font-display text-xl font-semibold">Gemma 4 E2B</div>
+          <div class="text-xs font-mono text-slate-500 mt-1">phone-class · 3 GB · $0</div>
+        </div>
+        <div class="font-display text-4xl font-semibold text-slate-300">67.0</div>
+      </a>
+      <p class="mt-3 text-xs font-mono text-slate-500">
+        95% confidence interval · E4B [79.6–87.8] · E2B [61.5–72.1] · 300 scenarios · gemini-3-flash-preview as judge
+      </p>
+    </div>
+  </section>
+
+  <!-- WHAT'S IN v0.1 -->
+  <section class="mt-16">
+    <h2 class="font-display text-2xl font-semibold text-slate-300">What's in v0.1.</h2>
+    <div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-3xl">
+      <div>
+        <div class="font-display text-3xl font-semibold text-shield">300</div>
+        <p class="mt-1 text-sm text-slate-400">scenarios</p>
+      </div>
+      <div>
+        <div class="font-display text-3xl font-semibold text-shield">5</div>
+        <p class="mt-1 text-sm text-slate-400">domains</p>
+      </div>
+      <div>
+        <div class="font-display text-3xl font-semibold text-shield">3</div>
+        <p class="mt-1 text-sm text-slate-400">languages</p>
+      </div>
+      <div>
+        <div class="font-display text-3xl font-semibold text-shield">15</div>
+        <p class="mt-1 text-sm text-slate-400">failure modes</p>
+      </div>
+    </div>
+    <p class="mt-6 text-base text-slate-400 max-w-3xl">
+      Source-referenced ground truth from public authorities (regulators, medical guidelines, official law texts).
+      222 scenarios carry real risk; 78 are control scenarios with no risk — together they make the score
+      ungameable by always-warn or always-reassure strategies.
+    </p>
+  </section>
+
+  <!-- WHERE NEXT -->
+  <section class="mt-16">
+    <h2 class="font-display text-2xl font-semibold text-slate-300">Where it goes next.</h2>
+    <p class="mt-3 text-base text-slate-400 max-w-3xl">
+      v0.2 scales the dataset under the same acceptance criterion (more domains, more sources — not
+      necessarily more languages), runs a fine-tuning experiment on Gemma 4 to test whether the dataset
+      functions as a training target, and adds a second-judge calibration so readers can gauge how much
+      of the v0.1 result depends on the choice of judge.
+    </p>
+  </section>
+
+  <!-- PRIMARY ENTRY POINTS -->
+  <section class="mt-16">
+    <h2 class="font-display text-2xl font-semibold text-slate-300 mb-6">Read more.</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <a href="demo.html" class="block bg-shield/10 hover:bg-shield/15 border border-shield/30 rounded-lg p-5 transition-colors">
+        <div class="font-mono text-xs uppercase tracking-wider text-shield">live demo</div>
+        <div class="mt-2 text-base font-medium">Demo →</div>
+        <div class="mt-1 text-xs text-slate-500">the video scenario · reproducible in 2 cmds</div>
+      </a>
+      <a href="leaderboard.html" class="block bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 rounded-lg p-5 transition-colors">
+        <div class="font-mono text-xs uppercase tracking-wider text-slate-500">results</div>
+        <div class="mt-2 text-base font-medium">Leaderboard →</div>
+        <div class="mt-1 text-xs text-slate-500">scores · per-domain · diagnostic matrix</div>
+      </a>
+      <a href="dataset-browser.html" class="block bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 rounded-lg p-5 transition-colors">
+        <div class="font-mono text-xs uppercase tracking-wider text-slate-500">data</div>
+        <div class="mt-2 text-base font-medium">Dataset →</div>
+        <div class="mt-1 text-xs text-slate-500">300 scenarios · 5 domains · 3 languages</div>
+      </a>
+      <a href="methodology.html" class="block bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 rounded-lg p-5 transition-colors">
+        <div class="font-mono text-xs uppercase tracking-wider text-slate-500">how it's built</div>
+        <div class="mt-2 text-base font-medium">Methodology →</div>
+        <div class="mt-1 text-xs text-slate-500">sourcing · scoring · limitations</div>
+      </a>
+      <a href="slides.html" class="block bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 rounded-lg p-5 transition-colors">
+        <div class="font-mono text-xs uppercase tracking-wider text-slate-500">presentation</div>
+        <div class="mt-2 text-base font-medium">Deck →</div>
+        <div class="mt-1 text-xs text-slate-500">18 slides · the full pitch</div>
+      </a>
+    </div>
+
+    <!-- Secondary links -->
+    <div class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-xs font-mono text-slate-500">
+      <a href="taxonomy.html" class="hover:text-shield transition-colors">Taxonomy →</a>
+      <a href="dataset-browser.html" class="hover:text-shield transition-colors">Dataset →</a>
+      <a href="https://github.com/andrea-decosmo/gap-bench" class="hover:text-shield transition-colors">GitHub →</a>
+    </div>
+  </section>
+
+  <!-- Citation (collapsible, doesn't dominate) -->
+  <details class="mt-16 group">
+    <summary class="cursor-pointer font-mono text-xs uppercase tracking-wider text-slate-500 hover:text-shield transition-colors select-none">
+      Citation <span class="text-slate-600 group-open:hidden">+</span><span class="text-slate-600 hidden group-open:inline">−</span>
+    </summary>
+    <pre class="mt-3 bg-white/[0.04] border border-white/10 rounded-lg p-4 overflow-x-auto text-sm text-slate-400 font-mono">@misc{decosmo2026gap,
+  title  = {GAP-Bench: A Diagnostic Benchmark for AI Protection of Vulnerable Users},
+  author = {De Cosmo, Andrea},
+  year   = {2026},
+  url    = {https://github.com/andrea-decosmo/gap-bench}
+}</pre>
+  </details>
+
+</main>
+
+<!-- FOOTER with avatar + LinkedIn icon (unchanged) -->
+<footer class="border-t border-white/5 mt-16">
+  <div class="max-w-4xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <a href="https://www.linkedin.com/in/andreadecosmo/" target="_blank" rel="noopener" class="flex items-center gap-3 group">
+      <span>
+        <span class="block text-sm text-slate-300 group-hover:text-shield transition-colors">Andrea De Cosmo</span>
+        <span class="block text-xs font-mono text-slate-500">Founder, Edukai</span>
+      </span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" class="text-slate-500 group-hover:text-shield ml-1 transition-colors" aria-label="LinkedIn">
+        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+      </svg>
+    </a>
+    <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs font-mono text-slate-500">
+      <span>Apache 2.0 code</span>
+      <span>CC-BY-SA 4.0 dataset</span>
+      <span>CC-BY-NC-ND 4.0 site</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
