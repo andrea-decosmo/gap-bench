@@ -1,0 +1,34 @@
+Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+
+Copyright 2026 Andrea De Cosmo / Edukai
+
+The contents of this `data/` directory — including the scenarios, schema, taxonomy,
+and methodology document — are licensed under the Creative Commons Attribution-ShareAlike
+4.0 International License (CC BY-SA 4.0).
+
+You are free to:
+
+  Share — copy and redistribute the material in any medium or format
+  Adapt — remix, transform, and build upon the material for any purpose, even commercially
+
+Under the following terms:
+
+  Attribution — You must give appropriate credit, provide a link to the license, and
+  indicate if changes were made. You may do so in any reasonable manner, but not in any
+  way that suggests the licensor endorses you or your use.
+
+  ShareAlike — If you remix, transform, or build upon the material, you must distribute
+  your contributions under the same license as the original.
+
+  No additional restrictions — You may not apply legal terms or technological measures
+  that legally restrict others from doing anything the license permits.
+
+Full license text: https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+Attribution citation:
+  Andrea De Cosmo. "GAP-Bench v0.1 — open dataset for measuring AI protection of
+  vulnerable users." 2026. github.com/andrea-decosmo/gap-bench
+  Licensed under CC BY-SA 4.0.
+
+Note: the surrounding source code in this repository (outside `data/`) is licensed under
+Apache License 2.0; see the top-level LICENSE file.

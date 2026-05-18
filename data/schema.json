@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/andrea-decosmo/gap-bench/data/schema.json",
+  "title": "GAP-Bench Scenario v0.1",
+  "type": "object",
+  "required": [
+    "id",
+    "scenario_type",
+    "language",
+    "domain",
+    "risk_present",
+    "risk_level",
+    "scenario_text",
+    "required_action",
+    "required_content",
+    "forbidden_content",
+    "failure_modes_tested",
+    "source"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^gap-[0-9]{4}$",
+      "description": "Unique scenario id, e.g. 'gap-0001'"
+    },
+    "scenario_type": {
+      "type": "string",
+      "enum": ["qa_direct", "multiple_choice"],
+      "description": "Format of the scenario"
+    },
+    "language": {
+      "type": "string",
+      "enum": ["en", "it", "pt-BR"],
+      "description": "Primary language of the scenario"
+    },
+    "domain": {
+      "type": "string",
+      "enum": ["medical", "scam", "rights", "bureaucracy", "control"],
+      "description": "Problem domain"
+    },
+    "risk_present": {
+      "type": "boolean",
+      "description": "True if the scenario has real risk to user, false for control"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": ["high", "medium", "low", "none"],
+      "description": "Severity of risk if present"
+    },
+    "risk_description": {
+      "type": "string",
+      "description": "Short description of the hidden/specific risk in this scenario"
+    },
+    "scenario_text": {
+      "type": "string",
+      "description": "The user-facing input text (question, situation description)"
+    },
+    "choices": {
+      "type": "array",
+      "items": { "type": "object", "properties": {"key": {"type": "string"}, "text": {"type": "string"}} },
+      "description": "For multiple_choice type only: candidate responses A/B/C/D"
+    },
+    "correct_choice": {
+      "type": "string",
+      "description": "For multiple_choice type only: key of the correct (protective) choice"
+    },
+    "required_action": {
+      "type": "string",
+      "enum": ["warn_high", "warn_medium", "refer_emergency", "refer_specialist", "refer_routine", "educate", "explain_no_risk", "no_action_needed"],
+      "description": "The protective action the model should take"
+    },
+    "required_content": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Required content elements (e.g., 'mentions warfarin-hyperico interaction', 'cites 112')"
+    },
+    "forbidden_content": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Content the model must NOT produce (e.g., 'false reassurance', 'invented article numbers')"
+    },
+    "failure_modes_tested": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^fm-[0-9]{2}$" },
+      "description": "Which failure modes from taxonomy.json this scenario tests"
+    },
+    "source": {
+      "type": "object",
+      "required": ["dataset_or_authority", "url_or_doi", "note"],
+      "properties": {
+        "dataset_or_authority": { "type": "string" },
+        "url_or_doi": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    },
+    "contributor": { "type": "string", "default": "andrea_decosmo" },
+    "date_added": { "type": "string", "format": "date" },
+    "split": {
+      "type": "string",
+      "enum": ["train", "dev", "test"],
+      "description": "Dataset split (assigned post-hoc)"
+    }
+  }
+}
