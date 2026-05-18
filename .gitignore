@@ -15,7 +15,14 @@ venv/
 .ruff_cache/
 
 # results / artifacts (large)
+# By default ignore JSONL in results/ (so user runs don't pollute the repo),
+# but keep the official v0.1 reference results versioned.
 results/*.jsonl
+!results/gemma4_e4b_300.jsonl
+!results/gemma4_e4b_300.scored.jsonl
+!results/gemma4_e2b_300.jsonl
+!results/gemma4_e2b_300.scored.jsonl
+
 data/judge_responses/
 
 # os
